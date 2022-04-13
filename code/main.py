@@ -16,7 +16,7 @@ while True:
             pygame.quit()
             sys.exit()
 
-    screen.fill('black')
+    screen.fill('grey')
     level.run()
 
     pygame.display.set_caption("Приключения Тимоти Шаурмы")
