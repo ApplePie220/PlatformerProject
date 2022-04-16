@@ -45,6 +45,7 @@ class AnimatedTile(Tile):
         self.animate()
         self.rect.x += shift
 
+
 class Coin(AnimatedTile):
     def __init__(self, size, x, y, path):
         super().__init__(size, x, y, path)
@@ -59,6 +60,3 @@ class Tree(AnimatedTile):
         super().__init__(size, x, y, path)
         offset_y = y - offset
         self.rect.topleft = (x, offset_y)
-
-
-

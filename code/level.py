@@ -1,14 +1,16 @@
 import pygame
 from support import import_csv_layout, import_graphics
-from settings import tile_size
+from settings import tile_size, screen_height
 from tile import Tile, StaticTile, Crate, AnimatedTile, Coin, Tree
+from enemy import Enemy
+from decoration import Sky, Water
 
 
 class Level:
     def __init__(self, level_data, surface):
         # настройка экрана и скорость прокрутки уровня
         self.display_surface = surface
-        self.world_shift = -3
+        self.world_shift = 0
 
         # настройка ландшафта
         terrain_layout = import_csv_layout(level_data['terrain'])
@@ -34,8 +36,27 @@ class Level:
         bg_trees_layout = import_csv_layout(level_data['bg trees'])
         self.bg_trees_sprites = self.create_group_tile(bg_trees_layout, 'bg trees')
 
+        # настройка врагов
+        enemy_layout = import_csv_layout(level_data['enemies'])
+        self.enemies_sprite = self.create_group_tile(enemy_layout, 'enemies')
+
+        # настройка ограничений для врагов
+        constraint_layout = import_csv_layout(level_data['constraints'])
+        self.constraint_sprites = self.create_group_tile(constraint_layout, 'constraints')
+
+        # настройка игрока
+        player_layout = import_csv_layout(level_data['player'])
+        self.player = pygame.sprite.GroupSingle()
+        self.scores = pygame.sprite.GroupSingle()
+        self.player_setup(player_layout)
+
+        # настройка декораций
+        self.sky = Sky()
+        level_width = len(terrain_layout[0]) * tile_size
+        self.water = Water(screen_height - 40, level_width)
+
     def create_group_tile(self, layout, type):
-        global sprite
+
         sprite_group = pygame.sprite.Group()
 
         # перебираем каждый элемент внутри строки
@@ -60,6 +81,12 @@ class Level:
                     # натягиваем спрайты на блоки ящиков
                     if type == 'crates':
                         sprite = Crate(tile_size, x, y)
+
+                    if type == 'enemies':
+                        sprite = Enemy(tile_size, x, y)
+
+                    if type == 'constraints':
+                        sprite = Tile(tile_size, x, y)
 
                     # накладываем спрайты на монетки
                     if type == 'coins':
@@ -95,12 +122,33 @@ class Level:
                         if col == '6':
                             sprite = Tree(tile_size, x, y, 'graphics/terrain/trees/fivetree', 82)
 
-
                     sprite_group.add(sprite)
 
         return sprite_group
 
+    def player_setup(self, layout):
+        for row_index, row in enumerate(layout):
+            for col_index, col in enumerate(row):
+                x = col_index * tile_size
+                y = row_index * tile_size
+                if col == '0':
+                    print('player go')
+                if col == '1':
+                    hat_surface = pygame.image.load('graphics/character/end.png').convert_alpha()
+                    sprite = StaticTile(tile_size, x, y, hat_surface)
+                    self.scores.add(sprite)
+
+    def enemy_move_reverse(self):
+        for enemy in self.enemies_sprite.sprites():
+            # проверяем, сталкивается ли враг с ограничением
+            # False - не разрешаем разрушения ограничения, если враг столкнулся с ним
+            if pygame.sprite.spritecollide(enemy, self.constraint_sprites, False):
+                enemy.reverse()
+
     def run(self):
+        # отображение бэкграунда
+        self.sky.draw(self.display_surface)
+
         # отображение деревьев на заднем плане
         self.bg_trees_sprites.update(self.world_shift)
         self.bg_trees_sprites.draw(self.display_surface)
@@ -109,9 +157,19 @@ class Level:
         self.terrain_sprites.draw(self.display_surface)
         self.terrain_sprites.update(self.world_shift)
 
+        # отображение врагов и ограничений для них
+        self.enemies_sprite.update(self.world_shift)
+        self.constraint_sprites.update(self.world_shift)
+        self.enemy_move_reverse()
+        self.enemies_sprite.draw(self.display_surface)
+
         # отображение ящиков
         self.crate_sprites.update(self.world_shift)
         self.crate_sprites.draw(self.display_surface)
+
+        # отображение деревьев на переднем плане
+        self.fg_trees_sprites.update(self.world_shift)
+        self.fg_trees_sprites.draw(self.display_surface)
 
         # отображение травы
         self.grass_sprites.draw(self.display_surface)
@@ -121,7 +179,6 @@ class Level:
         self.coin_sprites.update(self.world_shift)
         self.coin_sprites.draw(self.display_surface)
 
-        # отображение деревьев на переднем плане
-        self.fg_trees_sprites.update(self.world_shift)
-        self.fg_trees_sprites.draw(self.display_surface)
-
+        # отображение игрока
+        self.scores.update(self.world_shift)
+        self.scores.draw(self.display_surface)
