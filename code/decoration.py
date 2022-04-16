@@ -14,16 +14,3 @@ class Sky:
         my_rect = (0, 0, screen_width, screen_height)
         surface.blit(self.background_img, my_rect)
 
-
-class Water:
-    def __init__(self, top, lvl_width):
-        # смещаем на одну ширину экрана
-        water_start = -screen_width
-        water_width = 192
-        # расчет на сколько широким будет спрайт
-        tile_x_amount = int((lvl_width + screen_width) / water_width)
-        self.water_sprites = pygame.sprite.Group()
-        for tile in range(tile_x_amount):
-            x = tile * water_width + water_start
-            y = top
-            sprite = AnimatedTile(192, x, y, 'graphics/decoration/water')

@@ -3,7 +3,7 @@ from support import import_csv_layout, import_graphics
 from settings import tile_size, screen_height
 from tile import Tile, StaticTile, Crate, AnimatedTile, Coin, Tree
 from enemy import Enemy
-from decoration import Sky, Water
+from decoration import Sky
 
 
 class Level:
@@ -53,7 +53,6 @@ class Level:
         # настройка декораций
         self.sky = Sky()
         level_width = len(terrain_layout[0]) * tile_size
-        self.water = Water(screen_height - 40, level_width)
 
     def create_group_tile(self, layout, type):
 
@@ -182,3 +181,4 @@ class Level:
         # отображение игрока
         self.scores.update(self.world_shift)
         self.scores.draw(self.display_surface)
+
