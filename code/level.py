@@ -4,6 +4,8 @@ from settings import tile_size, screen_height
 from tile import Tile, StaticTile, Crate, AnimatedTile, Coin, Tree
 from enemy import Enemy
 from decoration import Sky
+from player import Player
+from particles import Particle
 
 
 class Level:
@@ -47,7 +49,7 @@ class Level:
         # настройка игрока
         player_layout = import_csv_layout(level_data['player'])
         self.player = pygame.sprite.GroupSingle()
-        self.scores = pygame.sprite.GroupSingle()
+        self.purpose = pygame.sprite.GroupSingle()
         self.player_setup(player_layout)
 
         # настройка декораций
@@ -55,7 +57,6 @@ class Level:
         level_width = len(terrain_layout[0]) * tile_size
 
     def create_group_tile(self, layout, type):
-
         sprite_group = pygame.sprite.Group()
 
         # перебираем каждый элемент внутри строки
@@ -131,11 +132,39 @@ class Level:
                 x = col_index * tile_size
                 y = row_index * tile_size
                 if col == '0':
-                    print('player go')
+                    sprite = Player((x, y),self.display_surface, self.jump_particles)
+                    self.player.add(sprite)
                 if col == '1':
                     hat_surface = pygame.image.load('graphics/character/end.png').convert_alpha()
                     sprite = StaticTile(tile_size, x, y, hat_surface)
-                    self.scores.add(sprite)
+                    self.purpose.add(sprite)
+
+    # находился ли персонаж на земле
+    def get_player_onground(self):
+        if self.player.sprite.on_ground:
+            self.player_on_ground = True
+        else:
+            # если он не был на земле, значит был в воздухе
+            self.player_on_ground = False
+
+    # анимация чатсиц для приземления
+    def create_land_particles(self):
+        if not self.player_on_ground and self.player.sprite.on_ground and not self.dust_sprite.sprites():
+            if self.player.sprite.facing_right:
+                offset = pygame.math.Vector2(1, 17)
+            else:
+                offset = pygame.math.Vector2(-1, 17)
+            land_particles = Particle(self.player.sprite.rect.midbottom - offset, 'land')
+            self.dust_sprite.add(land_particles)
+
+    # анимация частиц для прыжка
+    def jump_particles(self, position):
+        if self.player.sprite.facing_right:
+            position -= pygame.math.Vector2(10, 5)
+        else:
+            position += pygame.math.Vector2(10, -5)
+        jump_part_sprite = Particle(position, 'jump')
+        self.dust_sprite.add(jump_part_sprite)
 
     def enemy_move_reverse(self):
         for enemy in self.enemies_sprite.sprites():
@@ -179,6 +208,11 @@ class Level:
         self.coin_sprites.draw(self.display_surface)
 
         # отображение игрока
-        self.scores.update(self.world_shift)
-        self.scores.draw(self.display_surface)
+        self.player.update()
+        # TODO сделать спрайт игрока больше размером
+        # а то совсем стыд, какая маленькая
+        # её еле разглядишь среди блоков и остального, кошмарище...
+        self.player.draw(self.display_surface)
+        self.purpose.update(self.world_shift)
+        self.purpose.draw(self.display_surface)
 
