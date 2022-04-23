@@ -1,6 +1,6 @@
 import pygame
 from support import import_csv_layout, import_graphics
-from settings import tile_size, screen_height
+from settings import tile_size, screen_height, screen_width
 from tile import Tile, StaticTile, Crate, AnimatedTile, Coin, Tree
 from enemy import Enemy
 from decoration import Sky
@@ -13,6 +13,7 @@ class Level:
         # настройка экрана и скорость прокрутки уровня
         self.display_surface = surface
         self.world_shift = 0
+        self.current_x = None
 
         # настройка ландшафта
         terrain_layout = import_csv_layout(level_data['terrain'])
@@ -51,10 +52,15 @@ class Level:
         self.player = pygame.sprite.GroupSingle()
         self.purpose = pygame.sprite.GroupSingle()
         self.player_setup(player_layout)
+        self.player_on_ground = False
 
         # настройка декораций
         self.sky = Sky()
         level_width = len(terrain_layout[0]) * tile_size
+
+        # настройка частиц игрока
+        self.dust_sprite = pygame.sprite.GroupSingle()
+
 
     def create_group_tile(self, layout, type):
         sprite_group = pygame.sprite.Group()
@@ -166,6 +172,77 @@ class Level:
         jump_part_sprite = Particle(position, 'jump')
         self.dust_sprite.add(jump_part_sprite)
 
+    # вертик. движение игрока
+    def vertical_move(self):
+        player = self.player.sprite
+        player.apply_gravity()
+        collide_sprites_groups = self.terrain_sprites.sprites() + self.crate_sprites.sprites()
+        # проверяем все спрайты
+        for sprite in collide_sprites_groups:
+            # смотрим, сталкиваются ли спрайты платформ с игроком
+            if sprite.rect.colliderect(player.rect):
+                # и смотрим его направление движения, и перемещаем игрока
+                # на сторону препятствия, с которым он столкнулся
+                if player.direction.y > 0:
+                    player.rect.bottom = sprite.rect.top
+                    player.direction.y = 0
+                    player.on_ground = True
+                elif player.direction.y < 0:
+                    player.rect.top = sprite.rect.bottom
+                    player.direction.y = 0
+                    player.on_celling = True
+
+        # проверяем, игрок на полу и прыгает или падает
+        if player.on_ground and player.direction.y < 0 or player.direction.y > 1:
+            player.on_ground = False
+        if player.on_celling and player.direction.y > 0:
+            player.on_celling = False
+
+    # горизонт. движение игрока
+    def horizontal_move(self):
+        player = self.player.sprite
+        # горизонтальное движения персонажа
+        player.rect.x += player.direction.x * player.speed
+        collide_sprites_groups = self.terrain_sprites.sprites() + self.crate_sprites.sprites()
+        # проверяем все спрайты
+        for sprite in collide_sprites_groups:
+            # смотрим, сталкиваются ли спрайты платформ с игроком
+            if sprite.rect.colliderect(player.rect):
+                # и смотрим его направление движения, и перемещаем игрока
+                # на сторону препятствия, с которым он столкнулся
+                if player.direction.x < 0:
+                    player.rect.left = sprite.rect.right
+                    player.on_left = True
+                    # если сталкиваемся с левой стеной
+                    self.current_x = player.rect.left
+                elif player.direction.x > 0:
+                    player.rect.right = sprite.rect.left
+                    player.on_right = True
+                    # если сталкиваемся с правой стеной
+                    self.current_x = player.rect.right
+
+        # если перс слева и перестал двигаться влево или вправо и не касаемся левой стены
+        if player.on_left and (player.rect.left < self.current_x or player.direction.x >= 0):
+            player.on_left = False
+        if player.on_right and (player.rect.right < self.current_x or player.direction.x <= 0):
+            player.on_right = False
+
+    def scroll_x(self):
+        player = self.player.sprite
+        # получаем центр позиции игрока
+        player_x = player.rect.centerx
+        direction_x = player.direction.x
+        # привязка пермещения персонажа к перемещению экрана
+        if player_x < screen_width / 4 and direction_x < 0:
+            self.world_shift = 4
+            player.speed = 0
+        elif player_x > screen_width - (screen_width / 4) and direction_x > 0:
+            self.world_shift = -4
+            player.speed = 0
+        else:
+            self.world_shift = 0
+            player.speed = 4
+
     def enemy_move_reverse(self):
         for enemy in self.enemies_sprite.sprites():
             # проверяем, сталкивается ли враг с ограничением
@@ -207,8 +284,17 @@ class Level:
         self.coin_sprites.update(self.world_shift)
         self.coin_sprites.draw(self.display_surface)
 
-        # отображение игрока
+        # отображение частиц приземления и прыжка
+        self.dust_sprite.update(self.world_shift)
+        self.dust_sprite.draw(self.display_surface)
+
+        # отображение игрока и включение его перемещения
         self.player.update()
+        self.horizontal_move()
+        self.get_player_onground()
+        self.vertical_move()
+        self.create_land_particles()
+        self.scroll_x()
         # TODO сделать спрайт игрока больше размером
         # а то совсем стыд, какая маленькая
         # её еле разглядишь среди блоков и остального, кошмарище...
