@@ -10,12 +10,14 @@ level_0 = {
     'grass': 'levels/0/level_0._grass.csv',
     'unlock': 1,
     'content': 'this is level 0',
-    'node_pos': (110, 400)
+    'node_pos': (380, 450)
+    # 100 400 позиция 0-лвла поменялась с позицией 2-лвла
 }
-level_1 = {'unlock': 2, 'content': 'this is level 1', 'node_pos': (300, 220)}
-level_2 = {'unlock': 3, 'content': 'this is level 2', 'node_pos': (480, 610)}
+level_1 = {'unlock': 2, 'content': 'this is level 1', 'node_pos': (100, 400)}
+# 300 220 позиция 2-лвла поменялась с позицией 1-лвла
+level_2 = {'unlock': 3, 'content': 'this is level 2', 'node_pos': (300, 220)}
 level_3 = {'unlock': 4, 'content': 'this is level 3', 'node_pos': (610, 350)}
-level_4 = {'unlock': 5, 'content': 'this is level 4', 'node_pos': (880, 210)}
+level_4 = {'unlock': 5, 'content': 'this is level 4', 'node_pos': (800, 190)}
 level_5 = {'unlock': 5, 'content': 'this is level 5', 'node_pos': (1050, 400)}
 
 levels = {
