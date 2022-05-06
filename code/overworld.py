@@ -3,11 +3,12 @@ from game_data import levels
 
 
 class Overworld:
-    def __init__(self, start_level, max_level, surface):
+    def __init__(self, start_level, max_level, surface, create_lvl):
         # настройки
         self.display_surface = surface
         self.max_level = max_level
         self.current_level = start_level
+        self.create_lvl = create_lvl
 
         # логика перемещения иконки
         self.moving = False
@@ -18,12 +19,14 @@ class Overworld:
         self.setup_nodes()
         self.setup_icon()
 
+    # установка иконки игрока
     def setup_icon(self):
         self.icon = pygame.sprite.GroupSingle()
         # создание иконки на спрайте текущего уровня
         icon_sprite = Icon(self.nodes.sprites()[self.current_level].rect.center)
         self.icon.add(icon_sprite)
 
+    # установка блоков уровней
     def setup_nodes(self):
         self.nodes = pygame.sprite.Group()
         for index, node_data in enumerate(levels.values()):
@@ -34,11 +37,13 @@ class Overworld:
                 node_sprite = Node(node_data['node_pos'], 'locked', self.speed)
             self.nodes.add(node_sprite)
 
+    # отрисовка маршрута между блоками уровней
     def draw_path(self):
         points = [node['node_pos'] for index, node in enumerate(levels.values())
                   if index <= self.max_level]
         pygame.draw.lines(self.display_surface, 'brown', False, points, 5)
 
+    # обновление иконки игрока
     def upd_icon(self):
         if self.moving and self.move_direction:
             self.icon.sprite.position += self.move_direction * self.speed
@@ -48,6 +53,7 @@ class Overworld:
                 self.moving = False
                 self.move_direction = pygame.math.Vector2(0, 0)
 
+    # считывание нажиманий на кнопки
     def input(self):
         keys = pygame.key.get_pressed()
         if not self.moving:
@@ -59,7 +65,10 @@ class Overworld:
                 self.move_direction = self.get_movement_data('previous')
                 self.current_level -= 1
                 self.moving = True
+            elif keys[pygame.K_SPACE]:
+                self.create_lvl(self.current_level)
 
+    # данные для конечного и начального перемещения
     def get_movement_data(self, target):
         start = pygame.math.Vector2(self.nodes.sprites()[self.current_level].rect.center)
         if target == 'next':
@@ -82,7 +91,7 @@ class Overworld:
         self.icon.draw(self.display_surface)
 
 
-# спрайты для дизайна уровней
+# прямоугольники для дизайна уровней
 class Node(pygame.sprite.Sprite):
     def __init__(self, position, stat, ic_speed):
         super().__init__()
