@@ -15,7 +15,7 @@ class Game:
         self.status = 'overworld'
 
     def create_lvl(self, current_level):
-        self.level = Level(level_0, screen, current_level, self.create_overworld)
+        self.level = Level(current_level, screen, self.create_overworld)
         self.status = 'level'
 
     def create_overworld(self, current_level, new_max_level):
@@ -35,7 +35,6 @@ class Game:
 pygame.init()
 screen = pygame.display.set_mode((screen_width, screen_height))
 clock = pygame.time.Clock()
-# level = Level(level_0, screen)
 game = Game()
 
 while True:
@@ -46,7 +45,6 @@ while True:
 
     screen.fill('grey')
     game.run()
-    # level.run()
 
     pygame.display.set_caption("Приключения Тимоти Шаурмы")
     pygame.display.set_icon(pygame.image.load('graphics/icon/witch.gif'))

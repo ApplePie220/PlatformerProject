@@ -10,8 +10,9 @@ level_0 = {
     'grass': 'levels/0/level_0._grass.csv',
     'unlock': 1,
     'content': 'this is level 0',
-    'node_pos': (380, 450)
-    # 100 400 позиция 0-лвла поменялась с позицией 2-лвла
+    'node_pos': (380, 450),
+    'node_graphics': 'путь к файлу'
+
 }
 level_1 = {
     'terrain': 'levels/0/level_0._terrain.csv',
@@ -27,7 +28,6 @@ level_1 = {
     'content': 'this is level 1',
     'node_pos': (100, 400)
 }
-# 300 220 позиция 2-лвла поменялась с позицией 1-лвла
 level_2 = {
     'terrain': 'levels/0/level_0._terrain.csv',
     'coins': 'levels/0/level_0._coins.csv',

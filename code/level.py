@@ -10,7 +10,7 @@ from particles import Particle
 
 
 class Level:
-    def __init__(self, level_data, surface, current_level, create_overworld):
+    def __init__(self, current_level, surface, create_overworld):
         # настройка экрана и скорость прокрутки уровня
         self.display_surface = surface
         self.world_shift = 0
@@ -23,13 +23,15 @@ class Level:
 
         # уровень для разблокировки
         self.new_max_level = level_data['unlock']
+
         # Настройка создания внешнего мира навигации
         self.create_overworld = create_overworld
+        level_data = levels[self.current_level]
 
         # отображение уровня
-        self.font = pygame.font.Font(None, 45)
-        self.text_surface = self.font.render(level_content, True, 'White')
-        self.text_rect = self.text_surface.get_rect(center=(screen_width / 2, screen_height / 2))
+        # self.font = pygame.font.Font(None, 45)
+        # self.text_surface = self.font.render(level_content, True, 'White')
+        # self.text_rect = self.text_surface.get_rect(center=(screen_width / 2, screen_height / 2))
 
         # настройка ландшафта
         terrain_layout = import_csv_layout(level_data['terrain'])
@@ -154,6 +156,14 @@ class Level:
         if keys[pygame.K_ESCAPE]:
             self.create_overworld(self.current_level, 0)
 
+    def isdeath(self):
+        if self.player.sprite.rect.top > screen_height:
+            self.create_overworld(self.current_level, 0)
+
+    def iswin(self):
+        if pygame.sprite.spritecollide(self.player.sprite, self.purpose, False):
+            self.create_overworld(self.current_level, self.new_max_level)
+
     def player_setup(self, layout):
         for row_index, row in enumerate(layout):
             for col_index, col in enumerate(row):
@@ -274,54 +284,57 @@ class Level:
 
     def run(self):
         self.input()
-        self.display_surface.blit(self.text_surface, self.text_rect)
         # отображение бэкграунда
-       # self.sky.draw(self.display_surface)
+        self.sky.draw(self.display_surface)
 
         # отображение деревьев на заднем плане
-       # self.bg_trees_sprites.update(self.world_shift)
-       # self.bg_trees_sprites.draw(self.display_surface)
+        self.bg_trees_sprites.update(self.world_shift)
+        self.bg_trees_sprites.draw(self.display_surface)
 
         # отображаем ландшафт
-       # self.terrain_sprites.draw(self.display_surface)
-       # self.terrain_sprites.update(self.world_shift)
+        self.terrain_sprites.draw(self.display_surface)
+        self.terrain_sprites.update(self.world_shift)
 
         # отображение врагов и ограничений для них
-       # self.enemies_sprite.update(self.world_shift)
-       # self.constraint_sprites.update(self.world_shift)
-       # self.enemy_move_reverse()
-       # self.enemies_sprite.draw(self.display_surface)
+        self.enemies_sprite.update(self.world_shift)
+        self.constraint_sprites.update(self.world_shift)
+        self.enemy_move_reverse()
+        self.enemies_sprite.draw(self.display_surface)
 
         # отображение ящиков
-       # self.crate_sprites.update(self.world_shift)
-       # self.crate_sprites.draw(self.display_surface)
+        self.crate_sprites.update(self.world_shift)
+        self.crate_sprites.draw(self.display_surface)
 
         # отображение деревьев на переднем плане
-       # self.fg_trees_sprites.update(self.world_shift)
-       # self.fg_trees_sprites.draw(self.display_surface)
+        self.fg_trees_sprites.update(self.world_shift)
+        self.fg_trees_sprites.draw(self.display_surface)
 
         # отображение травы
-       # self.grass_sprites.draw(self.display_surface)
-       # self.grass_sprites.update(self.world_shift)
+        self.grass_sprites.draw(self.display_surface)
+        self.grass_sprites.update(self.world_shift)
 
         # отображение монеток
-       # self.coin_sprites.update(self.world_shift)
-       # self.coin_sprites.draw(self.display_surface)
+        self.coin_sprites.update(self.world_shift)
+        self.coin_sprites.draw(self.display_surface)
 
         # отображение частиц приземления и прыжка
-       # self.dust_sprite.update(self.world_shift)
-       # self.dust_sprite.draw(self.display_surface)
+        self.dust_sprite.update(self.world_shift)
+        self.dust_sprite.draw(self.display_surface)
 
         # отображение игрока и включение его перемещения
-       # self.player.update()
-       # self.horizontal_move()
-        # self.get_player_onground()
-        # self.vertical_move()
-        # self.create_land_particles()
-        # self.scroll_x()
+        self.player.update()
+        self.horizontal_move()
+        self.get_player_onground()
+        self.vertical_move()
+        self.create_land_particles()
+        self.scroll_x()
         # TODO сделать спрайт игрока больше размером
         # а то совсем стыд, какая маленькая
         # её еле разглядишь среди блоков и остального, кошмарище...
-        # self.player.draw(self.display_surface)
-        # self.purpose.update(self.world_shift)
-    # self.purpose.draw(self.display_surface)
+        self.player.draw(self.display_surface)
+        self.purpose.update(self.world_shift)
+        self.purpose.draw(self.display_surface)
+
+        # проверка на проигрыш или выйгрыш
+        self.isdeath()
+        self.iswin()
