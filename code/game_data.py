@@ -11,7 +11,7 @@ level_0 = {
     'unlock': 1,
     'content': 'this is level 0',
     'node_pos': (380, 450),
-    'node_graphics': 'путь к файлу'
+    'node_graphics': 'graphics/overworld/0'
 
 }
 level_1 = {
@@ -26,7 +26,8 @@ level_1 = {
     'grass': 'levels/0/level_0._grass.csv',
     'unlock': 2,
     'content': 'this is level 1',
-    'node_pos': (100, 400)
+    'node_pos': (100, 400),
+    'node_graphics': 'graphics/overworld/1'
 }
 level_2 = {
     'terrain': 'levels/0/level_0._terrain.csv',
@@ -40,7 +41,8 @@ level_2 = {
     'grass': 'levels/0/level_0._grass.csv',
     'unlock': 3,
     'content': 'this is level 2',
-    'node_pos': (300, 220)
+    'node_pos': (300, 220),
+    'node_graphics': 'graphics/overworld/2'
 }
 level_3 = {
     'terrain': 'levels/0/level_0._terrain.csv',
@@ -54,7 +56,8 @@ level_3 = {
     'grass': 'levels/0/level_0._grass.csv',
     'unlock': 4,
     'content': 'this is level 3',
-    'node_pos': (610, 350)
+    'node_pos': (610, 350),
+    'node_graphics': 'graphics/overworld/3'
 }
 level_4 = {
     'terrain': 'levels/0/level_0._terrain.csv',
@@ -68,7 +71,8 @@ level_4 = {
     'grass': 'levels/0/level_0._grass.csv',
     'unlock': 5,
     'content': 'this is level 4',
-    'node_pos': (800, 190)
+    'node_pos': (800, 190),
+    'node_graphics': 'graphics/overworld/4'
 }
 level_5 = {
     'terrain': 'levels/0/level_0._terrain.csv',
@@ -82,7 +86,8 @@ level_5 = {
     'grass': 'levels/0/level_0._grass.csv',
     'unlock': 5,
     'content': 'this is level 5',
-    'node_pos': (1050, 400)
+    'node_pos': (1050, 400),
+    'node_graphics': 'graphics/overworld/5'
 }
 
 levels = {

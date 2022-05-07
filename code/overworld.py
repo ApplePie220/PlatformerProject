@@ -1,5 +1,7 @@
 import pygame
 from game_data import levels
+from support import import_folder
+from decoration import Sky
 
 
 class Overworld:
@@ -18,6 +20,7 @@ class Overworld:
         # спрайты
         self.setup_nodes()
         self.setup_icon()
+        self.sky = Sky()
 
     # установка иконки игрока
     def setup_icon(self):
@@ -31,17 +34,20 @@ class Overworld:
         self.nodes = pygame.sprite.Group()
         for index, node_data in enumerate(levels.values()):
             if index <= self.max_level:
-                node_sprite = Node(node_data['node_pos'], 'available', self.speed)
+                node_sprite = Node(node_data['node_pos'], 'available', self.speed,
+                                   node_data['node_graphics'])
                 self.nodes.add(node_sprite)
             else:
-                node_sprite = Node(node_data['node_pos'], 'locked', self.speed)
+                node_sprite = Node(node_data['node_pos'], 'locked', self.speed,
+                                   node_data['node_graphics'])
             self.nodes.add(node_sprite)
 
     # отрисовка маршрута между блоками уровней
     def draw_path(self):
-        points = [node['node_pos'] for index, node in enumerate(levels.values())
-                  if index <= self.max_level]
-        pygame.draw.lines(self.display_surface, 'brown', False, points, 5)
+        if self.max_level:
+            points = [node['node_pos'] for index, node in enumerate(levels.values())
+                      if index <= self.max_level]
+            pygame.draw.lines(self.display_surface, '#a04f45', False, points, 5)
 
     # обновление иконки игрока
     def upd_icon(self):
@@ -83,6 +89,9 @@ class Overworld:
         self.input()
         self.upd_icon()
         self.icon.update()
+        self.nodes.update()
+
+        self.sky.draw(self.display_surface)
         # Отрисовка дорожек между уровнями
         self.draw_path()
         # отрисовка уровней
@@ -93,25 +102,43 @@ class Overworld:
 
 # прямоугольники для дизайна уровней
 class Node(pygame.sprite.Sprite):
-    def __init__(self, position, stat, ic_speed):
+    def __init__(self, position, stat, ic_speed, path):
         super().__init__()
-        self.image = pygame.Surface((100, 100))
+        self.frames = import_folder(path)
+        self.frame_index = 0
+        self.image = self.frames[self.frame_index]
         if stat == 'available':
-            self.image.fill('green')
+            self.stat = 'available'
         else:
-            self.image.fill('red')
+            self.stat = 'locked'
         self.rect = self.image.get_rect(center=position)
         self.detect_zone = pygame.Rect(self.rect.centerx - (ic_speed / 2),
                                        self.rect.centery - (ic_speed / 2),
                                        ic_speed, ic_speed)
+
+    # метод для анимации спрайтов блоков уровней
+    def animate(self):
+        # frame_index - с какой скоростью будут меняеться изображения
+        self.frame_index += 0.1
+        if self.frame_index >= len(self.frames):
+            self.frame_index = 0
+        self.image = self.frames[int(self.frame_index)]
+
+    def update(self):
+        if self.stat == 'available':
+            self.animate()
+        else:
+            tint_surf = self.image.copy()
+            tint_surf.fill('black', None, pygame.BLEND_RGBA_MULT)
+            self.image.blit(tint_surf, (0, 0))
+
 
 # иконка игрока будет
 class Icon(pygame.sprite.Sprite):
     def __init__(self, position):
         super().__init__()
         self.position = position
-        self.image = pygame.Surface((20, 20))
-        self.image.fill('pink')
+        self.image = pygame.image.load('graphics/overworld/1.png').convert_alpha()
         self.rect = self.image.get_rect(center=position)
 
     def update(self):

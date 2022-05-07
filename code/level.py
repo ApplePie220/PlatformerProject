@@ -328,10 +328,8 @@ class Level:
         self.vertical_move()
         self.create_land_particles()
         self.scroll_x()
-        # TODO сделать спрайт игрока больше размером
-        # а то совсем стыд, какая маленькая
-        # её еле разглядишь среди блоков и остального, кошмарище...
         self.player.draw(self.display_surface)
+        # включение конца уровня
         self.purpose.update(self.world_shift)
         self.purpose.draw(self.display_surface)
 

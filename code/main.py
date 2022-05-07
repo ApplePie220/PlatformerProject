@@ -10,8 +10,8 @@ from overworld import Overworld
 # класс для логи запуска внешнего мира
 class Game:
     def __init__(self):
-        self.max_level = 2
-        self.overworld = Overworld(1, self.max_level, screen, self.create_lvl)
+        self.max_level = 0
+        self.overworld = Overworld(0, self.max_level, screen, self.create_lvl)
         self.status = 'overworld'
 
     def create_lvl(self, current_level):
