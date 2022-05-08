@@ -133,7 +133,7 @@ class Player(pygame.sprite.Sprite):
         else:
             self.direction.x = 0
 
-        if keys[pygame.K_SPACE] and self.on_ground:
+        if (keys[pygame.K_UP] or keys[pygame.K_SPACE]) and self.on_ground:
             self.jump()
             self.jump_particles(self.rect.midbottom)
 

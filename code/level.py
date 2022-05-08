@@ -10,7 +10,7 @@ from particles import Particle
 
 
 class Level:
-    def __init__(self, current_level, surface, create_overworld):
+    def __init__(self, current_level, surface, create_overworld, change_scores):
         # настройка экрана и скорость прокрутки уровня
         self.display_surface = surface
         self.world_shift = 0
@@ -72,6 +72,9 @@ class Level:
         self.player_setup(player_layout)
         self.player_on_ground = False
 
+        # настройка пользовательнского интерфейса
+        self.change_scores = change_scores
+
         # настройка декораций
         self.sky = Sky()
         level_width = len(terrain_layout[0]) * tile_size
@@ -114,9 +117,9 @@ class Level:
                     # накладываем спрайты на монетки
                     if type == 'coins':
                         if col == '0':
-                            sprite = Coin(tile_size, x, y, 'graphics/coin/standart')
+                            sprite = Coin(tile_size, x, y, 'graphics/coin/standart', 1)
                         if col == '1':
-                            sprite = Coin(tile_size, x, y, 'graphics/coin/pink')
+                            sprite = Coin(tile_size, x, y, 'graphics/coin/pink', 2)
 
                     # накладываем спрайты на деревья на переднем плане
                     if type == 'fg trees':
@@ -149,10 +152,18 @@ class Level:
 
         return sprite_group
 
+    def check_coin_collision(self):
+        collided_coins = pygame.sprite.spritecollide(self.player.sprite, self.coin_sprites, True)
+        if collided_coins:
+            for coin in collided_coins:
+                self.change_scores(coin.value)
+
     def input(self):
         keys = pygame.key.get_pressed()
+        # секретная конпка для быстрого прохождения уровня
         if keys[pygame.K_RETURN]:
             self.create_overworld(self.current_level, self.new_max_level)
+        # конпка выхода с уровня
         if keys[pygame.K_ESCAPE]:
             self.create_overworld(self.current_level, 0)
 
@@ -336,3 +347,6 @@ class Level:
         # проверка на проигрыш или выйгрыш
         self.isdeath()
         self.iswin()
+
+        # проверка на стоклновение со спрайтом монетки
+        self.check_coin_collision()
