@@ -1,9 +1,10 @@
 import pygame
 from support import import_folder
+from math import sin
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, position, surface, jump_particles):
+    def __init__(self, position, surface, jump_particles, change_health):
         super().__init__()
         # грузим изображения для анимации
         self.import_character()
@@ -36,6 +37,12 @@ class Player(pygame.sprite.Sprite):
         # статус по умолчанию
         self.status = 'idle'
 
+        # настройка здоровья игрока и временной неуязвимости
+        self.change_health = change_health
+        self.temp_protect = False
+        self.protect_duration = 420
+        self.time_damage = 0
+
         # направление движение для анимации по умолчанию
         self.facing_right = True
 
@@ -45,6 +52,29 @@ class Player(pygame.sprite.Sprite):
         self.on_celling = False
         self.on_left = False
         self.on_right = False
+
+    # синусоидальные значения невидимости для анимации получения урона
+    def sin_protect_value(self):
+        value = sin(pygame.time.get_ticks())
+        if value >= 0:
+            return 255
+        else:
+            return 0
+
+    # метод получения урона
+    def get_damage(self):
+        if not self.temp_protect:
+
+            # только смерть с одного удара, только хардкор
+            self.change_health(-100)
+            self.temp_protect = True
+            self.time_damage = pygame.time.get_ticks()
+
+    def temp_protect_timer(self):
+        if self.temp_protect:
+            curr_time = pygame.time.get_ticks()
+            if curr_time - self.time_damage >= self.protect_duration:
+                self.temp_protect = False
 
     # функция для импортирования частиц для анимации
     def import_particles(self):
@@ -76,6 +106,13 @@ class Player(pygame.sprite.Sprite):
         else:
             flipped_image = pygame.transform.flip(image, True, False)
             self.image = flipped_image
+
+        if self.temp_protect:
+            get_sin_value = self.sin_protect_value()
+            self.image.set_alpha(get_sin_value)
+        else:
+            self.image.set_alpha(255)
+
 
         # установка прямоугольника персонажа
         if self.on_ground and self.on_right:
@@ -152,3 +189,5 @@ class Player(pygame.sprite.Sprite):
         self.get_status()
         self.animate()
         self.dust_animate()
+        self.temp_protect_timer()
+        self.sin_protect_value()

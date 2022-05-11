@@ -10,7 +10,7 @@ from particles import Particle
 
 
 class Level:
-    def __init__(self, current_level, surface, create_overworld, change_scores):
+    def __init__(self, current_level, surface, create_overworld, change_scores, change_health):
         # настройка экрана и скорость прокрутки уровня
         self.display_surface = surface
         self.world_shift = 0
@@ -19,7 +19,6 @@ class Level:
         # настройка текущего уровня
         self.current_level = current_level
         level_data = levels[current_level]
-        level_content = level_data['content']
 
         # уровень для разблокировки
         self.new_max_level = level_data['unlock']
@@ -27,11 +26,6 @@ class Level:
         # Настройка создания внешнего мира навигации
         self.create_overworld = create_overworld
         level_data = levels[self.current_level]
-
-        # отображение уровня
-        # self.font = pygame.font.Font(None, 45)
-        # self.text_surface = self.font.render(level_content, True, 'White')
-        # self.text_rect = self.text_surface.get_rect(center=(screen_width / 2, screen_height / 2))
 
         # настройка ландшафта
         terrain_layout = import_csv_layout(level_data['terrain'])
@@ -69,7 +63,7 @@ class Level:
         player_layout = import_csv_layout(level_data['player'])
         self.player = pygame.sprite.GroupSingle()
         self.purpose = pygame.sprite.GroupSingle()
-        self.player_setup(player_layout)
+        self.player_setup(player_layout, change_health)
         self.player_on_ground = False
 
         # настройка пользовательнского интерфейса
@@ -81,6 +75,9 @@ class Level:
 
         # настройка частиц игрока
         self.dust_sprite = pygame.sprite.GroupSingle()
+
+        # настройка частиц гибели врага
+        self.explosion_sprites = pygame.sprite.Group()
 
     def create_group_tile(self, layout, type):
         sprite_group = pygame.sprite.Group()
@@ -152,11 +149,32 @@ class Level:
 
         return sprite_group
 
+    # проверка на столкновение с монетками
     def check_coin_collision(self):
         collided_coins = pygame.sprite.spritecollide(self.player.sprite, self.coin_sprites, True)
         if collided_coins:
             for coin in collided_coins:
                 self.change_scores(coin.value)
+
+    # проверка на столкновение с врагом
+    def check_enemy_collision(self):
+        enemy_collisions = pygame.sprite.spritecollide(self.player.sprite, self.enemies_sprite, False)
+        if enemy_collisions:
+            for enemy in enemy_collisions:
+                enemy_center = enemy.rect.centery
+                enemy_top = enemy.rect.top
+                player_bottom = self.player.sprite.rect.bottom
+
+                # либо игрок идет вниз, либо стоит на чем-то, что поверх врага
+                if enemy_top < player_bottom < enemy_center and self.player.sprite.direction.y >= 0:
+
+                    # при убийстве врага, игрко подпрыгивает
+                    self.player.sprite.direction.y = -15
+                    exploision_sprite = Particle(enemy.rect.center, 'exploision')
+                    self.explosion_sprites.add(exploision_sprite)
+                    enemy.kill()
+                else:
+                    self.player.sprite.get_damage()
 
     def input(self):
         keys = pygame.key.get_pressed()
@@ -175,13 +193,13 @@ class Level:
         if pygame.sprite.spritecollide(self.player.sprite, self.purpose, False):
             self.create_overworld(self.current_level, self.new_max_level)
 
-    def player_setup(self, layout):
+    def player_setup(self, layout, change_health):
         for row_index, row in enumerate(layout):
             for col_index, col in enumerate(row):
                 x = col_index * tile_size
                 y = row_index * tile_size
                 if col == '0':
-                    sprite = Player((x, y), self.display_surface, self.jump_particles)
+                    sprite = Player((x, y), self.display_surface, self.jump_particles, change_health)
                     self.player.add(sprite)
                 if col == '1':
                     hat_surface = pygame.image.load('graphics/character/end.png').convert_alpha()
@@ -306,11 +324,13 @@ class Level:
         self.terrain_sprites.draw(self.display_surface)
         self.terrain_sprites.update(self.world_shift)
 
-        # отображение врагов и ограничений для них
+        # отображение врагов, ограничений для них и частиц для смерти
         self.enemies_sprite.update(self.world_shift)
         self.constraint_sprites.update(self.world_shift)
         self.enemy_move_reverse()
         self.enemies_sprite.draw(self.display_surface)
+        self.explosion_sprites.update(self.world_shift)
+        self.explosion_sprites.draw(self.display_surface)
 
         # отображение ящиков
         self.crate_sprites.update(self.world_shift)
@@ -340,6 +360,7 @@ class Level:
         self.create_land_particles()
         self.scroll_x()
         self.player.draw(self.display_surface)
+
         # включение конца уровня
         self.purpose.update(self.world_shift)
         self.purpose.draw(self.display_surface)
@@ -347,6 +368,9 @@ class Level:
         # проверка на проигрыш или выйгрыш
         self.isdeath()
         self.iswin()
+
+        # проверка на столкновение с врагом
+        self.check_enemy_collision()
 
         # проверка на стоклновение со спрайтом монетки
         self.check_coin_collision()

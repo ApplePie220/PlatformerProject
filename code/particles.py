@@ -11,6 +11,8 @@ class Particle(pygame.sprite.Sprite):
             self.frames = import_folder('graphics/character/particles/jump')
         if type == 'land':
             self.frames = import_folder('graphics/character/particles/land')
+        if type == 'exploision':
+            self.frames = import_folder('graphics/enemies/explosion')
         self.image = self.frames[self.frame_index]
         self.rect = self.image.get_rect(center=position)
 

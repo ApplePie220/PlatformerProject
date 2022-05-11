@@ -24,13 +24,28 @@ class Game:
         # интерфейс
         self.ui = UI(screen)
 
+    def change_health(self, amount):
+        self.current_health += amount
+
     def change_scores(self, amount):
         self.coins += amount
+
+    # проверка, упало ли здоровье игрока до нуля
+    def check_endgame(self):
+
+        # если упало, то начинаем новую игру
+        if self.current_health <= 0:
+            self.current_health = 100
+            self.coins = 0
+            self.max_level = 0
+            self.overworld = Overworld(0, self.max_level, screen, self.create_lvl)
+            self.status = 'overworld'
 
     def create_lvl(self, current_level):
 
         # внутрь класса level передаем методы из класса game чтобы вызвать их оттуда
-        self.level = Level(current_level, screen, self.create_overworld, self.change_scores)
+        self.level = Level(current_level, screen, self.create_overworld, self.change_scores,
+                           self.change_health)
         self.status = 'level'
 
     def create_overworld(self, current_level, new_max_level):
@@ -48,6 +63,7 @@ class Game:
             self.level.run()
             self.ui.show_health(self.current_health, self.max_health)
             self.ui.show_scores(self.coins)
+            self.check_endgame()
 
 
 pygame.init()
