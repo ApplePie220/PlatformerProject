@@ -126,6 +126,8 @@ class Level:
                             sprite = Tree(tile_size, x, y, 'graphics/terrain/trees/twotree', 118)
                         if col == '3':
                             sprite = Tree(tile_size, x, y, 'graphics/terrain/trees/threetree', 133)
+                        if col == '4':
+                            sprite = Tree(tile_size, x, y, 'graphics/terrain/trees/fourtree', 55)
                         if col == '5':
                             sprite = Tree(tile_size, x, y, 'graphics/terrain/trees/siztree', 100)
                         if col == '6':
