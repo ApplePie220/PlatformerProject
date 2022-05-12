@@ -6,17 +6,17 @@ class UI:
         self.display_surface = surface
 
         # монетки
-        self.coin = pygame.image.load('graphics/ui/coin1.png').convert_alpha()
+        self.coin = pygame.image.load('../graphics/ui/coin1.png').convert_alpha()
         self.coin_rect = self.coin.get_rect(topleft=(50, 61))
 
         # здоровье
-        self.health_bar = pygame.image.load('graphics/ui/health_bar2.png').convert_alpha()
+        self.health_bar = pygame.image.load('../graphics/ui/health_bar2.png').convert_alpha()
         self.health_bar_topleft = (54, 39)
         self.bar_max_length = 152
         self.bar_height = 4
 
         # шрифт
-        self.font = pygame.font.Font('graphics/ui/font.ttf', 20)
+        self.font = pygame.font.Font('../graphics/ui/font.ttf', 20)
 
     def show_health(self, curr, full):
         self.display_surface.blit(self.health_bar, (20, 10))

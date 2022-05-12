@@ -81,6 +81,6 @@ while True:
     game.run()
 
     pygame.display.set_caption("Приключения Тимоти Шаурмы")
-    pygame.display.set_icon(pygame.image.load('graphics/icon/plum1.png'))
+    pygame.display.set_icon(pygame.image.load('../graphics/icon/plum1.png'))
     pygame.display.update()
     clock.tick(60)

@@ -8,11 +8,11 @@ class Particle(pygame.sprite.Sprite):
         self.frame_index = 0
         self.animate_speed = 0.5
         if type == 'jump':
-            self.frames = import_folder('graphics/character/particles/jump')
+            self.frames = import_folder('../graphics/character/particles/jump')
         if type == 'land':
-            self.frames = import_folder('graphics/character/particles/land')
+            self.frames = import_folder('../graphics/character/particles/land')
         if type == 'exploision':
-            self.frames = import_folder('graphics/enemies/explosion')
+            self.frames = import_folder('../graphics/enemies/explosion')
         self.image = self.frames[self.frame_index]
         self.rect = self.image.get_rect(center=position)
 

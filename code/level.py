@@ -91,13 +91,13 @@ class Level:
 
                     # натягиваем спрайты на блоки ландшафта
                     if type == 'terrain':
-                        terrain_tile_list = import_graphics('graphics/terrain/tileset.png')
+                        terrain_tile_list = import_graphics('../graphics/terrain/tileset.png')
                         tile_surface = terrain_tile_list[int(col)]
                         sprite = StaticTile(tile_size, x, y, tile_surface)
 
                     # натягиваем спрайты на блоки травы
                     if type == 'grass':
-                        grass_tile_list = import_graphics('graphics/terrain/grass_tiles.png')
+                        grass_tile_list = import_graphics('../graphics/terrain/grass_tiles.png')
                         tile_surface = grass_tile_list[int(col)]
                         sprite = StaticTile(tile_size, x, y, tile_surface)
 
@@ -114,38 +114,38 @@ class Level:
                     # накладываем спрайты на монетки
                     if type == 'coins':
                         if col == '0':
-                            sprite = Coin(tile_size, x, y, 'graphics/coin/standart', 1)
+                            sprite = Coin(tile_size, x, y, '../graphics/coin/standart', 1)
                         if col == '1':
-                            sprite = Coin(tile_size, x, y, 'graphics/coin/pink', 2)
+                            sprite = Coin(tile_size, x, y, '../graphics/coin/pink', 2)
 
                     # накладываем спрайты на деревья на переднем плане
                     if type == 'fg trees':
                         if col == '1':
-                            sprite = Tree(tile_size, x, y, 'graphics/terrain/trees/onetree', 85)
+                            sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/onetree', 85)
                         if col == '2':
-                            sprite = Tree(tile_size, x, y, 'graphics/terrain/trees/twotree', 118)
+                            sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/twotree', 118)
                         if col == '3':
-                            sprite = Tree(tile_size, x, y, 'graphics/terrain/trees/threetree', 133)
+                            sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/threetree', 133)
                         if col == '4':
-                            sprite = Tree(tile_size, x, y, 'graphics/terrain/trees/fourtree', 55)
+                            sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/fourtree', 55)
                         if col == '5':
-                            sprite = Tree(tile_size, x, y, 'graphics/terrain/trees/siztree', 100)
+                            sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/siztree', 100)
                         if col == '6':
-                            sprite = Tree(tile_size, x, y, 'graphics/terrain/trees/fivetree', 82)
+                            sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/fivetree', 82)
 
                     # накладываем спрайты на деревья на заднем плане
                     if type == 'bg trees':
                         if col == '0':
                             # 45 и остальные цифры - смещение спрайта на кол-во пикселов
-                            sprite = Tree(tile_size, x, y, 'graphics/terrain/trees/seventree', 45)
+                            sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/seventree', 45)
                         if col == '1':
-                            sprite = Tree(tile_size, x, y, 'graphics/terrain/trees/onetree', 85)
+                            sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/onetree', 85)
                         if col == '3':
-                            sprite = Tree(tile_size, x, y, 'graphics/terrain/trees/threetree', 125)
+                            sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/threetree', 125)
                         if col == '5':
-                            sprite = Tree(tile_size, x, y, 'graphics/terrain/trees/siztree', 150)
+                            sprite = Tree(tile_size, x, y, '../raphics/terrain/trees/siztree', 150)
                         if col == '6':
-                            sprite = Tree(tile_size, x, y, 'graphics/terrain/trees/fivetree', 82)
+                            sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/fivetree', 82)
 
                     sprite_group.add(sprite)
 
@@ -204,7 +204,7 @@ class Level:
                     sprite = Player((x, y), self.display_surface, self.jump_particles, change_health)
                     self.player.add(sprite)
                 if col == '1':
-                    hat_surface = pygame.image.load('graphics/character/end.png').convert_alpha()
+                    hat_surface = pygame.image.load('../graphics/character/end.png').convert_alpha()
                     sprite = StaticTile(tile_size, x, y, hat_surface)
                     self.purpose.add(sprite)
 

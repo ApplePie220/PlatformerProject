@@ -138,7 +138,7 @@ class Icon(pygame.sprite.Sprite):
     def __init__(self, position):
         super().__init__()
         self.position = position
-        self.image = pygame.image.load('graphics/overworld/1.png').convert_alpha()
+        self.image = pygame.image.load('../graphics/overworld/1.png').convert_alpha()
         self.rect = self.image.get_rect(center=position)
 
     def update(self):

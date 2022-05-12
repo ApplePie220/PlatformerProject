@@ -78,7 +78,7 @@ class Player(pygame.sprite.Sprite):
 
     # функция для импортирования частиц для анимации
     def import_particles(self):
-        self.particles_run = import_folder('graphics/character/particles/run')
+        self.particles_run = import_folder('../graphics/character/particles/run')
 
     # функция для импортирования изображения персонажа
     def import_character(self):
