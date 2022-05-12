@@ -143,7 +143,7 @@ class Level:
                         if col == '3':
                             sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/threetree', 125)
                         if col == '5':
-                            sprite = Tree(tile_size, x, y, '../raphics/terrain/trees/siztree', 150)
+                            sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/siztree', 150)
                         if col == '6':
                             sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/fivetree', 82)
 

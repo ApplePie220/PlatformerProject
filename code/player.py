@@ -66,7 +66,7 @@ class Player(pygame.sprite.Sprite):
         if not self.temp_protect:
 
             # только смерть с одного удара, только хардкор
-            self.change_health(-1)
+            self.change_health(-50)
             self.temp_protect = True
             self.time_damage = pygame.time.get_ticks()
 
