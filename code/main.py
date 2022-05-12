@@ -12,7 +12,7 @@ class Game:
     def __init__(self):
 
         # фичи уровня
-        self.max_level = 3
+        self.max_level = 0
         self.max_health = 100
         self.current_health = 100
         self.coins = 0
@@ -77,7 +77,6 @@ while True:
             pygame.quit()
             sys.exit()
 
-    # screen.fill('grey')
     game.run()
 
     pygame.display.set_caption("Приключения Тимоти Шаурмы")

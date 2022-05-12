@@ -82,7 +82,7 @@ class Player(pygame.sprite.Sprite):
 
     # функция для импортирования изображения персонажа
     def import_character(self):
-        character_path = 'graphics/character/'
+        character_path = '../graphics/character/'
         self.animations = {'idle': [], 'run': [], 'jump': [], 'fall': []}
         for animation in self.animations.keys():
             full_path = character_path + animation
