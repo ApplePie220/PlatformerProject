@@ -4,13 +4,14 @@ from settings import tile_size, screen_height, screen_width
 from tile import Tile, StaticTile, Crate, Coin, Tree
 from enemy import Enemy
 from game_data import levels
-from decoration import Sky
+from decoration import Background
 from player import Player
 from particles import Particle
 
 
 class Level:
-    def __init__(self, current_level, surface, create_overworld, change_scores, change_health):
+    def __init__(self, current_level, surface, create_overworld, change_scores, change_health,
+                 current_health, check_endgame):
         # настройка экрана и скорость прокрутки уровня
         self.display_surface = surface
         self.world_shift = 0
@@ -65,12 +66,14 @@ class Level:
         self.purpose = pygame.sprite.GroupSingle()
         self.player_setup(player_layout, change_health)
         self.player_on_ground = False
+        self.current_health = current_health
+        self.check_endgame = check_endgame
 
         # настройка пользовательнского интерфейса
         self.change_scores = change_scores
 
         # настройка декораций
-        self.sky = Sky()
+        self.background = Background()
         level_width = len(terrain_layout[0]) * tile_size
 
         # настройка частиц игрока
@@ -170,7 +173,7 @@ class Level:
                 # либо игрок идет вниз, либо стоит на чем-то, что поверх врага
                 if enemy_top < player_bottom < enemy_center and self.player.sprite.direction.y >= 0:
 
-                    # при убийстве врага, игрко подпрыгивает
+                    # при убийстве врага, игрок подпрыгивает
                     self.player.sprite.direction.y = -15
                     exploision_sprite = Particle(enemy.rect.center, 'exploision')
                     self.explosion_sprites.add(exploision_sprite)
@@ -180,16 +183,18 @@ class Level:
 
     def input(self):
         keys = pygame.key.get_pressed()
+
         # секретная конпка для быстрого прохождения уровня
-        if keys[pygame.K_RETURN]:
+        if keys[pygame.K_p]:
             self.create_overworld(self.current_level, self.new_max_level)
+
         # конпка выхода с уровня
         if keys[pygame.K_ESCAPE]:
             self.create_overworld(self.current_level, 0)
 
     def isdeath(self):
         if self.player.sprite.rect.top > screen_height:
-            self.create_overworld(self.current_level, 0)
+            self.player.sprite.get_damage(-100)
 
     def iswin(self):
         if pygame.sprite.spritecollide(self.player.sprite, self.purpose, False):
@@ -240,61 +245,66 @@ class Level:
         player = self.player.sprite
         player.apply_gravity()
         collide_sprites_groups = self.terrain_sprites.sprites() + self.crate_sprites.sprites()
+
         # проверяем все спрайты
         for sprite in collide_sprites_groups:
+
             # смотрим, сталкиваются ли спрайты платформ с игроком
-            if sprite.rect.colliderect(player.rect):
+            if sprite.rect.colliderect(player.collision_rect):
+
                 # и смотрим его направление движения, и перемещаем игрока
                 # на сторону препятствия, с которым он столкнулся
                 if player.direction.y > 0:
-                    player.rect.bottom = sprite.rect.top
+                    player.collision_rect.bottom = sprite.rect.top
                     player.direction.y = 0
                     player.on_ground = True
                 elif player.direction.y < 0:
-                    player.rect.top = sprite.rect.bottom
+                    player.collision_rect.top = sprite.rect.bottom
                     player.direction.y = 0
                     player.on_celling = True
 
         # проверяем, игрок на полу и прыгает или падает
         if player.on_ground and player.direction.y < 0 or player.direction.y > 1:
             player.on_ground = False
-        if player.on_celling and player.direction.y > 0:
-            player.on_celling = False
+        # if player.on_celling and player.direction.y > 0:
+        # player.on_celling = False
 
     # горизонт. движение игрока
     def horizontal_move(self):
         player = self.player.sprite
+
         # горизонтальное движения персонажа
-        player.rect.x += player.direction.x * player.speed
+        player.collision_rect.x += player.direction.x * player.speed
         collide_sprites_groups = self.terrain_sprites.sprites() + self.crate_sprites.sprites()
+
         # проверяем все спрайты
         for sprite in collide_sprites_groups:
+
             # смотрим, сталкиваются ли спрайты платформ с игроком
-            if sprite.rect.colliderect(player.rect):
+            if sprite.rect.colliderect(player.collision_rect):
+
                 # и смотрим его направление движения, и перемещаем игрока
                 # на сторону препятствия, с которым он столкнулся
                 if player.direction.x < 0:
-                    player.rect.left = sprite.rect.right
+                    player.collision_rect.left = sprite.rect.right
                     player.on_left = True
+
                     # если сталкиваемся с левой стеной
                     self.current_x = player.rect.left
                 elif player.direction.x > 0:
-                    player.rect.right = sprite.rect.left
+                    player.collision_rect.right = sprite.rect.left
                     player.on_right = True
+
                     # если сталкиваемся с правой стеной
                     self.current_x = player.rect.right
 
-        # если перс слева и перестал двигаться влево или вправо и не касаемся левой стены
-        if player.on_left and (player.rect.left < self.current_x or player.direction.x >= 0):
-            player.on_left = False
-        if player.on_right and (player.rect.right < self.current_x or player.direction.x <= 0):
-            player.on_right = False
-
     def scroll_x(self):
         player = self.player.sprite
+
         # получаем центр позиции игрока
         player_x = player.rect.centerx
         direction_x = player.direction.x
+
         # привязка пермещения персонажа к перемещению экрана
         if player_x < screen_width / 4 and direction_x < 0:
             self.world_shift = 4
@@ -308,6 +318,7 @@ class Level:
 
     def enemy_move_reverse(self):
         for enemy in self.enemies_sprite.sprites():
+
             # проверяем, сталкивается ли враг с ограничением
             # False - не разрешаем разрушения ограничения, если враг столкнулся с ним
             if pygame.sprite.spritecollide(enemy, self.constraint_sprites, False):
@@ -315,12 +326,17 @@ class Level:
 
     def run(self):
         self.input()
+
         # отображение бэкграунда
-        self.sky.draw(self.display_surface)
+        self.background.draw(self.display_surface)
 
         # отображение деревьев на заднем плане
         self.bg_trees_sprites.update(self.world_shift)
         self.bg_trees_sprites.draw(self.display_surface)
+
+        # отображение частиц приземления и прыжка
+        self.dust_sprite.update(self.world_shift)
+        self.dust_sprite.draw(self.display_surface)
 
         # отображаем ландшафт
         self.terrain_sprites.draw(self.display_surface)
@@ -349,10 +365,6 @@ class Level:
         # отображение монеток
         self.coin_sprites.update(self.world_shift)
         self.coin_sprites.draw(self.display_surface)
-
-        # отображение частиц приземления и прыжка
-        self.dust_sprite.update(self.world_shift)
-        self.dust_sprite.draw(self.display_surface)
 
         # отображение игрока и включение его перемещения
         self.player.update()

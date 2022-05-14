@@ -1,11 +1,12 @@
 import pygame
 from game_data import levels
 from support import import_folder
-from decoration import Sky
+from decoration import Background
 
 
 class Overworld:
     def __init__(self, start_level, max_level, surface, create_lvl):
+
         # настройки
         self.display_surface = surface
         self.max_level = max_level
@@ -20,7 +21,12 @@ class Overworld:
         # спрайты
         self.setup_nodes()
         self.setup_icon()
-        self.sky = Sky()
+        self.background = Background()
+
+        # время
+        self.start_time = pygame.time.get_ticks()
+        self.input_allow = False
+        self.timer_length = 500
 
     # установка иконки игрока
     def setup_icon(self):
@@ -54,6 +60,7 @@ class Overworld:
         if self.moving and self.move_direction:
             self.icon.sprite.position += self.move_direction * self.speed
             target_node = self.nodes.sprites()[self.current_level]
+
             # проверка на столкновение для остановки движения иконки
             if target_node.detect_zone.collidepoint(self.icon.sprite.position):
                 self.moving = False
@@ -62,7 +69,7 @@ class Overworld:
     # считывание нажиманий на кнопки
     def input(self):
         keys = pygame.key.get_pressed()
-        if not self.moving:
+        if not self.moving and self.input_allow:
             if keys[pygame.K_RIGHT] and self.current_level < self.max_level:
                 self.move_direction = self.get_movement_data('next')
                 self.current_level += 1
@@ -71,8 +78,14 @@ class Overworld:
                 self.move_direction = self.get_movement_data('previous')
                 self.current_level -= 1
                 self.moving = True
-            elif keys[pygame.K_SPACE]:
+            elif keys[pygame.K_RETURN]:
                 self.create_lvl(self.current_level)
+
+    def input_timer(self):
+        if not self.input_allow:
+            curr_time = pygame.time.get_ticks()
+            if curr_time - self.start_time >= self.timer_length:
+                self.input_allow = True
 
     # данные для конечного и начального перемещения
     def get_movement_data(self, target):
@@ -85,17 +98,22 @@ class Overworld:
         return (end - start).normalize()
 
     def run(self):
+        self.input_timer()
+
         # перемещение иконки игрока
         self.input()
         self.upd_icon()
         self.icon.update()
         self.nodes.update()
 
-        self.sky.draw(self.display_surface)
+        self.background.draw(self.display_surface)
+
         # Отрисовка дорожек между уровнями
         self.draw_path()
+
         # отрисовка уровней
         self.nodes.draw(self.display_surface)
+
         # отрисовка иконки игрока
         self.icon.draw(self.display_surface)
 

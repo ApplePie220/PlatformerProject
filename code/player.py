@@ -6,6 +6,7 @@ from math import sin
 class Player(pygame.sprite.Sprite):
     def __init__(self, position, surface, jump_particles, change_health):
         super().__init__()
+
         # грузим изображения для анимации
         self.import_character()
 
@@ -23,6 +24,7 @@ class Player(pygame.sprite.Sprite):
         # создание физического тела персонажа
         self.image = self.animations['idle'][self.frame_index]
         self.rect = self.image.get_rect(topleft=position)
+        self.collision_rect = pygame.Rect(self.rect.topleft, (25, self.rect.height))
 
         # вектор направления для перемещения перса
         self.direction = pygame.math.Vector2(0, 0)
@@ -40,7 +42,7 @@ class Player(pygame.sprite.Sprite):
         # настройка здоровья игрока и временной неуязвимости
         self.change_health = change_health
         self.temp_protect = False
-        self.protect_duration = 420
+        self.protect_duration = 700
         self.time_damage = 0
 
         # направление движение для анимации по умолчанию
@@ -62,11 +64,10 @@ class Player(pygame.sprite.Sprite):
             return 0
 
     # метод получения урона
-    def get_damage(self):
+    def get_damage(self, value=-50):
         if not self.temp_protect:
-
-            # только смерть с одного удара, только хардкор
-            self.change_health(-50)
+            # только смерть с двух ударов ударов, только хардкор
+            self.change_health(value)
             self.temp_protect = True
             self.time_damage = pygame.time.get_ticks()
 
@@ -103,9 +104,11 @@ class Player(pygame.sprite.Sprite):
         image = animation[int(self.frame_index)]
         if self.facing_right:
             self.image = image
+            self.rect.bottomleft = self.collision_rect.bottomleft
         else:
             flipped_image = pygame.transform.flip(image, True, False)
             self.image = flipped_image
+            self.rect.bottomright = self.collision_rect.bottomright
 
         if self.temp_protect:
             get_sin_value = self.sin_protect_value()
@@ -113,20 +116,7 @@ class Player(pygame.sprite.Sprite):
         else:
             self.image.set_alpha(255)
 
-
-        # установка прямоугольника персонажа
-        if self.on_ground and self.on_right:
-            self.rect = self.image.get_rect(bottomright=self.rect.bottomright)
-        if self.on_ground and self.on_left:
-            self.rect = self.image.get_rect(bottomleft=self.rect.bottomleft)
-        if self.on_ground:
-            self.rect = self.image.get_rect(midbottom=self.rect.midbottom)
-        if self.on_celling and self.on_right:
-            self.rect = self.image.get_rect(topright=self.rect.topright)
-        if self.on_celling and self.on_left:
-            self.rect = self.image.get_rect(topleft=self.rect.topleft)
-        if self.on_celling:
-            self.rect = self.image.get_rect(midtop=self.rect.midtop)
+        self.rect = self.image.get_rect(midbottom=self.rect.midbottom)
 
     # анимация частиц
     def dust_animate(self):
@@ -160,11 +150,10 @@ class Player(pygame.sprite.Sprite):
     # функция перемещения персонажа на экране
     def get_input(self):
         keys = pygame.key.get_pressed()
-
-        if keys[pygame.K_RIGHT]:
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             self.direction.x = 1
             self.facing_right = True
-        elif keys[pygame.K_LEFT]:
+        elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
             self.direction.x = -1
             self.facing_right = False
         else:
@@ -177,7 +166,7 @@ class Player(pygame.sprite.Sprite):
     # функция гравитации прыжка
     def apply_gravity(self):
         self.direction.y += self.gravity
-        self.rect.y += self.direction.y
+        self.collision_rect.y += self.direction.y
 
     # функция прыжка персонажа
     def jump(self):

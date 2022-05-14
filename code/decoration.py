@@ -2,7 +2,7 @@ import pygame
 from settings import screen_width, screen_height
 
 
-class Sky:
+class Background:
     def __init__(self):
         self.background_img = pygame.image.load('../graphics/decoration/background/bg2_back.png').convert()
         # растягивание спрайтов бэкграунда
