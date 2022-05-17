@@ -12,8 +12,8 @@ level_0 = {
     'content': 'this is level 0',
     'node_pos': (380, 450),
     'node_graphics': '../graphics/overworld/0'
-
 }
+
 level_1 = {
     'terrain': '../levels/1/level_1_terrain.csv',
     'coins': '../levels/1/level_1_coins.csv',
@@ -29,6 +29,7 @@ level_1 = {
     'node_pos': (100, 400),
     'node_graphics': '../graphics/overworld/1'
 }
+
 level_2 = {
     'terrain': '../levels/2/level_2_terrain.csv',
     'coins': '../levels/2/level_2_coins.csv',
@@ -44,6 +45,7 @@ level_2 = {
     'node_pos': (300, 220),
     'node_graphics': '../graphics/overworld/2'
 }
+
 level_3 = {
     'terrain': '../levels/3/level_3_terrain.csv',
     'coins': '../levels/3/level_3_coins.csv',
@@ -59,6 +61,7 @@ level_3 = {
     'node_pos': (610, 350),
     'node_graphics': '../graphics/overworld/3'
 }
+
 level_4 = {
     'terrain': '../levels/4/level_4_terrain.csv',
     'coins': '../levels/4/level_4_coins.csv',
@@ -74,6 +77,7 @@ level_4 = {
     'node_pos': (800, 190),
     'node_graphics': '../graphics/overworld/4'
 }
+
 level_5 = {
     'terrain': '../levels/5/level_5_terrain.csv',
     'coins': '../levels/5/level_5_coins.csv',

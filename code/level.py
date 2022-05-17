@@ -10,8 +10,9 @@ from particles import Particle
 
 
 class Level:
-    def __init__(self, current_level, surface, create_overworld, change_scores, change_health,
-                 current_health, check_endgame):
+    def __init__(self, current_level, surface, create_overworld, change_scores,
+                 change_health, current_health, check_endgame):
+
         # настройка экрана и скорость прокрутки уровня
         self.display_surface = surface
         self.world_shift = 0
@@ -82,10 +83,9 @@ class Level:
         # настройка частиц гибели врага
         self.explosion_sprites = pygame.sprite.Group()
 
+    # создание группы плиток уровня
     def create_group_tile(self, layout, type):
         sprite_group = pygame.sprite.Group()
-
-        # перебираем каждый элемент внутри строки
         for row_index, row in enumerate(layout):
             for col_index, col in enumerate(row):
                 if col != '-1':
@@ -108,47 +108,61 @@ class Level:
                     if type == 'crates':
                         sprite = Crate(tile_size, x, y)
 
+                    # спрайты фрагов
                     if type == 'enemies':
                         sprite = Enemy(tile_size, x, y)
 
+                    # спрайты ограничений для врагов
                     if type == 'constraints':
                         sprite = Tile(tile_size, x, y)
 
                     # накладываем спрайты на монетки
                     if type == 'coins':
                         if col == '0':
-                            sprite = Coin(tile_size, x, y, '../graphics/coin/standart', 1)
+                            sprite = Coin(tile_size, x, y,
+                                          '../graphics/coin/standart', 1)
                         if col == '1':
-                            sprite = Coin(tile_size, x, y, '../graphics/coin/pink', 2)
+                            sprite = Coin(tile_size, x, y,
+                                          '../graphics/coin/pink', 2)
 
                     # накладываем спрайты на деревья на переднем плане
                     if type == 'fg trees':
                         if col == '1':
-                            sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/onetree', 85)
+                            sprite = Tree(tile_size, x, y,
+                                          '../graphics/terrain/trees/onetree', 85)
                         if col == '2':
-                            sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/twotree', 118)
+                            sprite = Tree(tile_size, x, y,
+                                          '../graphics/terrain/trees/twotree', 118)
                         if col == '3':
-                            sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/threetree', 133)
+                            sprite = Tree(tile_size, x, y,
+                                          '../graphics/terrain/trees/threetree', 133)
                         if col == '4':
-                            sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/fourtree', 55)
+                            sprite = Tree(tile_size, x, y,
+                                          '../graphics/terrain/trees/fourtree', 55)
                         if col == '5':
-                            sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/siztree', 100)
+                            sprite = Tree(tile_size, x, y,
+                                          '../graphics/terrain/trees/siztree', 100)
                         if col == '6':
-                            sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/fivetree', 82)
+                            sprite = Tree(tile_size, x, y,
+                                          '../graphics/terrain/trees/fivetree', 82)
 
                     # накладываем спрайты на деревья на заднем плане
                     if type == 'bg trees':
                         if col == '0':
-                            # 45 и остальные цифры - смещение спрайта на кол-во пикселов
-                            sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/seventree', 45)
+                            sprite = Tree(tile_size, x, y,
+                                          '../graphics/terrain/trees/seventree', 45)
                         if col == '1':
-                            sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/onetree', 85)
+                            sprite = Tree(tile_size, x, y,
+                                          '../graphics/terrain/trees/onetree', 85)
                         if col == '3':
-                            sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/threetree', 125)
+                            sprite = Tree(tile_size, x, y,
+                                          '../graphics/terrain/trees/threetree', 125)
                         if col == '5':
-                            sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/siztree', 150)
+                            sprite = Tree(tile_size, x, y,
+                                          '../graphics/terrain/trees/siztree', 150)
                         if col == '6':
-                            sprite = Tree(tile_size, x, y, '../graphics/terrain/trees/fivetree', 82)
+                            sprite = Tree(tile_size, x, y,
+                                          '../graphics/terrain/trees/fivetree', 82)
 
                     sprite_group.add(sprite)
 
@@ -156,24 +170,22 @@ class Level:
 
     # проверка на столкновение с монетками
     def check_coin_collision(self):
-        collided_coins = pygame.sprite.spritecollide(self.player.sprite, self.coin_sprites, True)
+        collided_coins = pygame.sprite.spritecollide(self.player.sprite,
+                                                     self.coin_sprites, True)
         if collided_coins:
             for coin in collided_coins:
                 self.change_scores(coin.value)
 
     # проверка на столкновение с врагом
     def check_enemy_collision(self):
-        enemy_collisions = pygame.sprite.spritecollide(self.player.sprite, self.enemies_sprite, False)
+        enemy_collisions = pygame.sprite.spritecollide(self.player.sprite,
+                                                       self.enemies_sprite, False)
         if enemy_collisions:
             for enemy in enemy_collisions:
                 enemy_center = enemy.rect.centery
                 enemy_top = enemy.rect.top
                 player_bottom = self.player.sprite.rect.bottom
-
-                # либо игрок идет вниз, либо стоит на чем-то, что поверх врага
                 if enemy_top < player_bottom < enemy_center and self.player.sprite.direction.y >= 0:
-
-                    # при убийстве врага, игрок подпрыгивает
                     self.player.sprite.direction.y = -15
                     exploision_sprite = Particle(enemy.rect.center, 'exploision')
                     self.explosion_sprites.add(exploision_sprite)
@@ -206,19 +218,19 @@ class Level:
                 x = col_index * tile_size
                 y = row_index * tile_size
                 if col == '0':
-                    sprite = Player((x, y), self.display_surface, self.jump_particles, change_health)
+                    sprite = Player((x, y), self.display_surface, self.jump_particles,
+                                    change_health)
                     self.player.add(sprite)
                 if col == '1':
                     hat_surface = pygame.image.load('../graphics/character/end.png').convert_alpha()
                     sprite = StaticTile(tile_size, x, y, hat_surface)
                     self.purpose.add(sprite)
 
-    # находился ли персонаж на земле
+    # проверка, находился ли персонаж на земле
     def get_player_onground(self):
         if self.player.sprite.on_ground:
             self.player_on_ground = True
         else:
-            # если он не был на земле, значит был в воздухе
             self.player_on_ground = False
 
     # анимация чатсиц для приземления
@@ -245,15 +257,8 @@ class Level:
         player = self.player.sprite
         player.apply_gravity()
         collide_sprites_groups = self.terrain_sprites.sprites() + self.crate_sprites.sprites()
-
-        # проверяем все спрайты
         for sprite in collide_sprites_groups:
-
-            # смотрим, сталкиваются ли спрайты платформ с игроком
             if sprite.rect.colliderect(player.collision_rect):
-
-                # и смотрим его направление движения, и перемещаем игрока
-                # на сторону препятствия, с которым он столкнулся
                 if player.direction.y > 0:
                     player.collision_rect.bottom = sprite.rect.top
                     player.direction.y = 0
@@ -262,50 +267,30 @@ class Level:
                     player.collision_rect.top = sprite.rect.bottom
                     player.direction.y = 0
                     player.on_celling = True
-
-        # проверяем, игрок на полу и прыгает или падает
         if player.on_ground and player.direction.y < 0 or player.direction.y > 1:
             player.on_ground = False
-        # if player.on_celling and player.direction.y > 0:
-        # player.on_celling = False
 
     # горизонт. движение игрока
     def horizontal_move(self):
         player = self.player.sprite
-
-        # горизонтальное движения персонажа
         player.collision_rect.x += player.direction.x * player.speed
         collide_sprites_groups = self.terrain_sprites.sprites() + self.crate_sprites.sprites()
-
-        # проверяем все спрайты
         for sprite in collide_sprites_groups:
-
-            # смотрим, сталкиваются ли спрайты платформ с игроком
             if sprite.rect.colliderect(player.collision_rect):
-
-                # и смотрим его направление движения, и перемещаем игрока
-                # на сторону препятствия, с которым он столкнулся
                 if player.direction.x < 0:
                     player.collision_rect.left = sprite.rect.right
                     player.on_left = True
-
-                    # если сталкиваемся с левой стеной
                     self.current_x = player.rect.left
                 elif player.direction.x > 0:
                     player.collision_rect.right = sprite.rect.left
                     player.on_right = True
-
-                    # если сталкиваемся с правой стеной
                     self.current_x = player.rect.right
 
+    # привязка перемещения игрока к перемещению экрана
     def scroll_x(self):
         player = self.player.sprite
-
-        # получаем центр позиции игрока
         player_x = player.rect.centerx
         direction_x = player.direction.x
-
-        # привязка пермещения персонажа к перемещению экрана
         if player_x < screen_width / 4 and direction_x < 0:
             self.world_shift = 4
             player.speed = 0
@@ -316,11 +301,9 @@ class Level:
             self.world_shift = 0
             player.speed = 4
 
+    # для движения врагов и влево и вправо
     def enemy_move_reverse(self):
         for enemy in self.enemies_sprite.sprites():
-
-            # проверяем, сталкивается ли враг с ограничением
-            # False - не разрешаем разрушения ограничения, если враг столкнулся с ним
             if pygame.sprite.spritecollide(enemy, self.constraint_sprites, False):
                 enemy.reverse()
 

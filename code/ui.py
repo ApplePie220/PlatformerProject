@@ -20,8 +20,6 @@ class UI:
 
     def show_health(self, curr, full):
         self.display_surface.blit(self.health_bar, (20, 10))
-
-        # настройка шкалы здоровья
         curr_health_ratio = curr / full
         curr_bar_length = self.bar_max_length * curr_health_ratio
         health_bar_rect = pygame.Rect(self.health_bar_topleft, (curr_bar_length, self.bar_height))

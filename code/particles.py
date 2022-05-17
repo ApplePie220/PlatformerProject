@@ -16,11 +16,10 @@ class Particle(pygame.sprite.Sprite):
         self.image = self.frames[self.frame_index]
         self.rect = self.image.get_rect(center=position)
 
-    # метод для анимации частиц
+    # анимация частиц
     def animate(self):
         self.frame_index += self.animate_speed
         if self.frame_index >= len(self.frames):
-            # когда кадры закончатся, спрайт уничтожится
             self.kill()
         else:
             self.image = self.frames[int(self.frame_index)]

@@ -1,6 +1,7 @@
+from random import randint
 import pygame
 from tile import AnimatedTile
-from random import randint
+
 
 class Enemy(AnimatedTile):
     def __init__(self, size, x, y):

@@ -1,6 +1,6 @@
+from math import sin
 import pygame
 from support import import_folder
-from math import sin
 
 
 class Player(pygame.sprite.Sprite):
@@ -24,7 +24,8 @@ class Player(pygame.sprite.Sprite):
         # создание физического тела персонажа
         self.image = self.animations['idle'][self.frame_index]
         self.rect = self.image.get_rect(topleft=position)
-        self.collision_rect = pygame.Rect(self.rect.topleft, (25, self.rect.height))
+        self.collision_rect = pygame.Rect(self.rect.topleft,
+                                          (25, self.rect.height))
 
         # вектор направления для перемещения перса
         self.direction = pygame.math.Vector2(0, 0)
@@ -92,15 +93,9 @@ class Player(pygame.sprite.Sprite):
     # функция для анимирования персонажа
     def animate(self):
         animation = self.animations[self.status]
-        # зацикливаем на индексе кадра
-        # к индексу кадра добавляем скорость анимации
         self.frame_index += self.animation_speed
         if self.frame_index >= len(animation):
-            # она будет увеличиваться с 0 до 1.05
-            # а затем снова становиться 0 и войдет в цикл
             self.frame_index = 0
-
-        # отображаем изображение по х, если движется перс влево
         image = animation[int(self.frame_index)]
         if self.facing_right:
             self.image = image
@@ -124,7 +119,6 @@ class Player(pygame.sprite.Sprite):
             self.dust_frame_index += self.dust_animation_speed
             if self.dust_frame_index >= len(self.particles_run):
                 self.dust_frame_index = 0
-
             dust_particles = self.particles_run[int(self.dust_frame_index)]
             if self.facing_right:
                 position = self.rect.bottomleft - pygame.math.Vector2(6, 10)
@@ -136,7 +130,6 @@ class Player(pygame.sprite.Sprite):
 
     # статуст персонажа (бежит, стоит, прыгает, падает)
     def get_status(self):
-        # игрок движется вверх
         if self.direction.y < 0:
             self.status = 'jump'
         elif self.direction.y > 1:
@@ -158,7 +151,6 @@ class Player(pygame.sprite.Sprite):
             self.facing_right = False
         else:
             self.direction.x = 0
-
         if (keys[pygame.K_UP] or keys[pygame.K_SPACE]) and self.on_ground:
             self.jump()
             self.jump_particles(self.rect.midbottom)

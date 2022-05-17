@@ -1,5 +1,5 @@
-from support import import_folder
 import pygame
+from support import import_folder
 
 
 class Tile(pygame.sprite.Sprite):
@@ -20,8 +20,8 @@ class StaticTile(Tile):
 
 class Crate(StaticTile):
     def __init__(self, size, x, y):
-        super().__init__(size, x, y, pygame.image.load('../graphics/terrain/boxe.png').convert_alpha())
-        # смещение дле ящиков, чтобы не парили в воздухе
+        super().__init__(size, x, y, pygame.image.load('../graphics/terrain/boxe.png')
+                         .convert_alpha())
         offset_y = y + size
         self.rect = self.image.get_rect(bottomleft=(x, offset_y))
 
@@ -33,8 +33,8 @@ class AnimatedTile(Tile):
         self.frame_index = 0
         self.image = self.frames[self.frame_index]
 
+    # анимирование
     def animate(self):
-        # frame_index - с какой скоростью будут меняеться изображения
         self.frame_index += 0.2
         if self.frame_index >= len(self.frames):
             self.frame_index = 0
@@ -49,12 +49,9 @@ class AnimatedTile(Tile):
 class Coin(AnimatedTile):
     def __init__(self, size, x, y, path, value):
         super().__init__(size, x, y, path)
-        # смещаем спрайт на центр блока
         center_x = x + int(size / 2)
         center_y = y + int(size / 2)
         self.rect = self.image.get_rect(center=(center_x, center_y))
-
-        # вес каждой монетки
         self.value = value
 
 

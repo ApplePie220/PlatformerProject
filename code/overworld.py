@@ -60,8 +60,6 @@ class Overworld:
         if self.moving and self.move_direction:
             self.icon.sprite.position += self.move_direction * self.speed
             target_node = self.nodes.sprites()[self.current_level]
-
-            # проверка на столкновение для остановки движения иконки
             if target_node.detect_zone.collidepoint(self.icon.sprite.position):
                 self.moving = False
                 self.move_direction = pygame.math.Vector2(0, 0)
@@ -106,6 +104,7 @@ class Overworld:
         self.icon.update()
         self.nodes.update()
 
+        # отрисовка бэкрагунда
         self.background.draw(self.display_surface)
 
         # Отрисовка дорожек между уровнями
@@ -136,7 +135,6 @@ class Node(pygame.sprite.Sprite):
 
     # метод для анимации спрайтов блоков уровней
     def animate(self):
-        # frame_index - с какой скоростью будут меняеться изображения
         self.frame_index += 0.1
         if self.frame_index >= len(self.frames):
             self.frame_index = 0
@@ -151,7 +149,6 @@ class Node(pygame.sprite.Sprite):
             self.image.blit(tint_surf, (0, 0))
 
 
-# иконка игрока будет
 class Icon(pygame.sprite.Sprite):
     def __init__(self, position):
         super().__init__()

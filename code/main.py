@@ -1,20 +1,18 @@
-import pygame
 import sys
-
+import pygame
 from settings import *
 from level import Level
 from overworld import Overworld
 from ui import UI
 
 
-# класс для логи запуска внешнего мира
 class Game:
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((screen_width, screen_height))
         self.clock = pygame.time.Clock()
 
-        # фичи уровня
+        # хп и очки
         self.max_level = 0
         self.max_health = 100
         self.current_health = 100
@@ -35,8 +33,6 @@ class Game:
 
     # проверка, упало ли здоровье игрока до нуля
     def check_endgame(self):
-
-        # если упало, то начинаем новую игру
         if self.current_health <= 0:
             self.current_health = 100
             self.coins = 0
@@ -46,16 +42,12 @@ class Game:
 
     # создание уровня
     def create_lvl(self, current_level):
-
-        # внутрь класса level передаем методы из класса game чтобы вызвать их оттуда
         self.level = Level(current_level, self.screen, self.create_overworld, self.change_scores,
                            self.change_health, self.current_health, self.check_endgame)
         self.status = 'level'
 
     # создание внешнего мира
     def create_overworld(self, current_level, new_max_level):
-
-        # откроется новый уровень, если выйграем
         if new_max_level > self.max_level:
             self.max_level = new_max_level
         self.overworld = Overworld(current_level, self.max_level, self.screen, self.create_lvl)
