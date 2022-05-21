@@ -35,8 +35,6 @@ class Game:
     def check_endgame(self):
         if self.current_health <= 0:
             self.current_health = 100
-            self.coins = 0
-            self.max_level = 0
             self.overworld = Overworld(0, self.max_level, self.screen, self.create_lvl)
             self.status = 'overworld'
 
@@ -44,6 +42,7 @@ class Game:
     def create_lvl(self, current_level):
         self.level = Level(current_level, self.screen, self.create_overworld, self.change_scores,
                            self.change_health, self.current_health, self.check_endgame)
+        self.current_health = 100
         self.status = 'level'
 
     # создание внешнего мира

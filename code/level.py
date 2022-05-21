@@ -44,6 +44,7 @@ class Level:
         # настройка монеток
         coin_layout = import_csv_layout(level_data['coins'])
         self.coin_sprites = self.create_group_tile(coin_layout, 'coins')
+        self.temp_scores = 0
 
         # настройка деревьев на переднем плане
         fg_trees_layout = import_csv_layout(level_data['fg trees'])
@@ -174,6 +175,7 @@ class Level:
                                                      self.coin_sprites, True)
         if collided_coins:
             for coin in collided_coins:
+                self.temp_scores += coin.value
                 self.change_scores(coin.value)
 
     # проверка на столкновение с врагом
@@ -207,6 +209,7 @@ class Level:
     def isdeath(self):
         if self.player.sprite.rect.top > screen_height:
             self.player.sprite.get_damage(-100)
+            self.change_scores(-self.temp_scores)
 
     def iswin(self):
         if pygame.sprite.spritecollide(self.player.sprite, self.purpose, False):
